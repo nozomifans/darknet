@@ -963,7 +963,7 @@ void rgb_to_yuv(image im)
 // http://www.cs.rit.edu/~ncs/color/t_convert.html
 void rgb_to_hsv(image im)
 {
-    assert(im.c == 3);
+    assert(im.c >= 3);
     int i, j;
     float r, g, b;
     float h, s, v;
@@ -1000,7 +1000,7 @@ void rgb_to_hsv(image im)
 
 void hsv_to_rgb(image im)
 {
-    assert(im.c == 3);
+    assert(im.c >= 3);
     int i, j;
     float r, g, b;
     float h, s, v;

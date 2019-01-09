@@ -2,6 +2,7 @@
 
 #include "stdio.h"
 #include "stdlib.h"
+#include "string.h"
 #include "opencv2/opencv.hpp"
 #include "image.h"
 
@@ -54,7 +55,7 @@ image mat_to_image(Mat m)
         for(i = 0; i < h; ++i){
             for(k= 0; k < c; ++k){
                 for(j = 0; j < w; ++j){
-                    im.data[k*w*h + i*w + j] = data[i*step + j*c + k]/65535.;
+                    im.data[k*w*h + i*w + j] = data[i*step/2 + j*c + k]/65535.;
                 }
             }
         }
@@ -100,8 +101,27 @@ image load_image_cv(char *filename, int channels)
         char buff[256];
         sprintf(buff, "echo %s >> bad.list", filename);
         system(buff);
-        return make_image(10,10,3);
+        return make_image(10,10,channels);
         //exit(0);
+    }
+    char *period = strrchr(filename, '.');
+    if (period - filename >= 3 && !strncmp(period - 3, "rgb", 3)) {
+        // Load the d channel from a separate image
+        char d_filename[period - filename + 3];
+        sprintf(d_filename, "%.*sd.png", (int)(period - filename - 3), filename);
+
+        Mat d = imread(d_filename, IMREAD_ANYDEPTH);
+        if(!d.data){
+            fprintf(stderr, "Cannot load image \"%s\"\n", filename);
+            exit(1);
+        }
+
+        Mat rgbd = Mat(m.rows, m.cols, CV_16UC4);
+        int from_to[] = { 0,0, 1,1, 2,2, 3,3, 4,4 };
+        m.convertTo(m, CV_16U);
+        Mat mix_inputs[2] = {m, d};
+        mixChannels(mix_inputs, 2, &rgbd, 1, from_to, 4);
+        m = rgbd;
     }
     image im = mat_to_image(m);
     return im;

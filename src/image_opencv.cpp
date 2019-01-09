@@ -37,14 +37,25 @@ image mat_to_image(Mat m)
     int w = m.cols;
     int c = m.channels();
     image im = make_image(w, h, c);
-    unsigned char *data = (unsigned char*)m.data;
     int step = m.step;
     int i, j, k;
-
-    for(i = 0; i < h; ++i){
-        for(k= 0; k < c; ++k){
-            for(j = 0; j < w; ++j){
-                im.data[k*w*h + i*w + j] = data[i*step + j*c + k]/255.;
+    assert(m.depth() == CV_8U || m.depth() == CV_16U);
+    if (m.depth() == CV_8U) {
+        unsigned char *data = (unsigned char*)m.data;
+        for(i = 0; i < h; ++i){
+            for(k= 0; k < c; ++k){
+                for(j = 0; j < w; ++j){
+                    im.data[k*w*h + i*w + j] = data[i*step + j*c + k]/255.;
+                }
+            }
+        }
+    } else if (m.depth() == CV_16U) {
+        uint16_t *data = (uint16_t*)m.data;
+        for(i = 0; i < h; ++i){
+            for(k= 0; k < c; ++k){
+                for(j = 0; j < w; ++j){
+                    im.data[k*w*h + i*w + j] = data[i*step + j*c + k]/65535.;
+                }
             }
         }
     }

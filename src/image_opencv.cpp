@@ -104,11 +104,11 @@ image load_image_cv(char *filename, int channels)
         return make_image(10,10,channels);
         //exit(0);
     }
-    char *period = strrchr(filename, '.');
-    if (period - filename >= 3 && !strncmp(period - 3, "rgb", 3)) {
+    char *underline = strrchr(filename, '_');
+    if (underline && !strcmp(underline, "_rgb.png")) {
         // Load the d channel from a separate image
-        char d_filename[period - filename + 3];
-        sprintf(d_filename, "%.*sd.png", (int)(period - filename - 3), filename);
+        char d_filename[underline - filename + 7];
+        sprintf(d_filename, "%.*sd.png", (int)(underline - filename + 1), filename);
 
         Mat d = imread(d_filename, IMREAD_ANYDEPTH);
         if(!d.data){

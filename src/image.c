@@ -1298,9 +1298,19 @@ image load_image_stb(char *filename, int channels)
         fprintf(stderr, "Cannot load image \"%s\"\nSTB Reason: %s\n", filename, stbi_failure_reason());
         exit(0);
     }
+
+    uint16_t *d_data = NULL;
+    char *underline = strrchr(filename, '_');
+    if (underline && !strcmp(underline, "_rgb.png")) {
+        // Load the d channel from a separate image
+        char d_filename[underline - filename + 7];
+        sprintf(d_filename, "%.*sd.png", (int)(underline - filename + 1), filename);
+        d_data = stbi_load_16(d_filename, &w, &h, &c, 1);
+    }
+
     if(channels) c = channels;
     int i,j,k;
-    image im = make_image(w, h, c);
+    image im = make_image(w, h, c + !!d_data);
     for(k = 0; k < c; ++k){
         for(j = 0; j < h; ++j){
             for(i = 0; i < w; ++i){
@@ -1310,7 +1320,17 @@ image load_image_stb(char *filename, int channels)
             }
         }
     }
+    if (d_data) {
+        for(j = 0; j < h; ++j){
+            for(i = 0; i < w; ++i){
+                int dst_index = i + w*j + w*h*3;
+                int src_index = i + w*j;
+                im.data[dst_index] = (float)d_data[src_index]/65535.;
+            }
+        }
+    }
     free(data);
+    free(d_data);
     return im;
 }
 

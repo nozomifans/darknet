@@ -19,7 +19,7 @@ image get_image_from_stream(void *p);
 image load_image_cv(char *filename, int channels);
 int show_image_cv(image im, const char* name, int ms);
 
-#ifndef CAP_PROP_FRAME_WIDTH
+#ifdef CV_CAP_PROP_FRAME_WIDTH
 // OpenCV 2.* compatibility
 #define CAP_PROP_FRAME_WIDTH CV_CAP_PROP_FRAME_WIDTH
 #define CAP_PROP_FRAME_HEIGHT CV_CAP_PROP_FRAME_HEIGHT

@@ -12,21 +12,22 @@ extern "C" {
 
 Mat image_to_mat(image im)
 {
-    assert(im.c == 3 || im.c == 1);
+    int mat_c = min(im.c, 3);
+    assert(mat_c >= 3 || mat_c == 1);
     int x,y,c;
     image copy = copy_image(im);
     constrain_image(copy);
-    if(im.c == 3) rgbgr_image(copy);
-    unsigned char *data = (unsigned char *)malloc(im.w * im.h * im.c);
+    if(mat_c == 3) rgbgr_image(copy);
+    unsigned char *data = (unsigned char *)malloc(im.w * im.h * mat_c);
     for(y = 0; y < im.h; ++y){
         for(x = 0; x < im.w; ++x){
-            for(c= 0; c < im.c; ++c){
+            for(c= 0; c < mat_c; ++c){
                 float val = copy.data[c*im.h*im.w + y*im.w + x];
-                data[y*im.w*im.c + x*im.c + c] = (unsigned char)(val*255);
+                data[y*im.w*mat_c + x*mat_c + c] = (unsigned char)(val*255);
             }
         }
     }
-    Mat m(im.h, im.w, CV_MAKETYPE(CV_8U, im.c), data);
+    Mat m(im.h, im.w, CV_MAKETYPE(CV_8U, mat_c), data);
     free_image(copy);
     free(data);
     return m;
@@ -112,14 +113,14 @@ image load_image_cv(char *filename, int channels)
 
         Mat d = imread(d_filename, IMREAD_ANYDEPTH);
         if(!d.data){
-            fprintf(stderr, "Cannot load image \"%s\"\n", filename);
+            fprintf(stderr, "Cannot load image \"%s\"\n", d_filename);
             exit(1);
         }
 
         Mat rgbd = Mat(m.rows, m.cols, CV_16UC4);
-        int from_to[] = { 0,0, 1,1, 2,2, 3,3, 4,4 };
-        m.convertTo(m, CV_16U);
+        m.convertTo(m, CV_16U, 256);
         Mat mix_inputs[2] = {m, d};
+        int from_to[] = { 0,0, 1,1, 2,2, 3,3 };
         mixChannels(mix_inputs, 2, &rgbd, 1, from_to, 4);
         m = rgbd;
     }

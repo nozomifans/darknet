@@ -1306,6 +1306,10 @@ image load_image_stb(char *filename, int channels)
         char d_filename[underline - filename + 7];
         sprintf(d_filename, "%.*sd.png", (int)(underline - filename + 1), filename);
         d_data = stbi_load_16(d_filename, &w, &h, &c, 1);
+        if (!d_data) {
+            fprintf(stderr, "Cannot load image \"%s\"\n", d_filename);
+            exit(1);
+        }
     }
 
     if(channels) c = channels;

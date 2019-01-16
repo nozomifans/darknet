@@ -85,7 +85,7 @@ detection *avg_predictions(network *net, int *nboxes)
 void *detect_in_thread(void *ptr)
 {
     running = 1;
-    float nms = .4;
+    float nms = .6;
 
     layer l = net->layers[net->n-1];
     float *X = buff_letter[(buff_index+2)%3].data;

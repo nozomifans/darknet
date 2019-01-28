@@ -1329,7 +1329,7 @@ image load_image_stb(char *filename, int channels)
             for(i = 0; i < w; ++i){
                 int dst_index = i + w*j + w*h*3;
                 int src_index = i + w*j;
-                im.data[dst_index] = (float)d_data[src_index]/65535.;
+                im.data[dst_index] = 4. * (float)d_data[src_index]/65535.;
             }
         }
     }

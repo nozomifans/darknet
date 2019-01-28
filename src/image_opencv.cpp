@@ -38,6 +38,7 @@ image mat_to_image(Mat m)
     int h = m.rows;
     int w = m.cols;
     int c = m.channels();
+    assert(c <= 4);
     image im = make_image(w, h, c);
     int step = m.step;
     int i, j, k;
@@ -47,16 +48,21 @@ image mat_to_image(Mat m)
         for(i = 0; i < h; ++i){
             for(k= 0; k < c; ++k){
                 for(j = 0; j < w; ++j){
-                    im.data[k*w*h + i*w + j] = data[i*step + j*c + k]/255.;
+                    im.data[k*w*h + i*w + j] = (float)data[i*step + j*c + k]/255.;
                 }
             }
         }
     } else if (m.depth() == CV_16U) {
         uint16_t *data = (uint16_t*)m.data;
         for(i = 0; i < h; ++i){
-            for(k= 0; k < c; ++k){
+            for(k = 0; k < 3; ++k){
                 for(j = 0; j < w; ++j){
-                    im.data[k*w*h + i*w + j] = data[i*step/2 + j*c + k]/65535.;
+                    im.data[k*w*h + i*w + j] = (float)data[i*step/2 + j*c + k]/65535.;
+                }
+            }
+            if (c == 4) {
+                for(j = 0; j < w; ++j){
+                    im.data[3*w*h + i*w + j] = 4. * (float)data[i*step/2 + j*c + 3]/65535.;
                 }
             }
         }

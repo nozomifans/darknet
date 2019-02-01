@@ -1042,11 +1042,11 @@ data load_data_detection(int n, char **paths, int m, int w, int h, int boxes, in
 
     d.X.rows = n;
     d.X.vals = calloc(d.X.rows, sizeof(float*));
-    d.X.cols = h*w*3;
 
     d.y = make_matrix(n, 5*boxes);
     for(i = 0; i < n; ++i){
         image orig = load_image_color(random_paths[i], 0, 0);
+        d.X.cols = h*w*orig.c;
         image sized = make_image(w, h, orig.c);
         fill_image(sized, .5);
 

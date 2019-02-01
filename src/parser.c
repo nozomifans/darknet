@@ -1201,7 +1201,20 @@ void load_convolutional_weights(layer l, FILE *fp)
             printf("\n");
         }
     }
-    fread(l.weights, sizeof(float), num, fp);
+    if (0) {  // l.c == 4) {
+        // Hack to load 3 channel maps into 4 channels, keeping the 4th channel with random initialization
+        printf("Using 4 channel weight loading hack\n");
+        float *p = l.weights;
+        for (int i = 0; i < l.n; i++) {
+            fread(p, sizeof(float), 3/l.groups*l.size*l.size, fp);
+            p += 4/l.groups*l.size*l.size;
+        }
+    } else {
+        fread(l.weights, sizeof(float), num, fp);
+    }
+    // Use visualize_convolutional_layer to check if weights were loaded correctly
+    // if (l.c == 4 || l.c == 3)
+    //     visualize_convolutional_layer(l, "conv", NULL);
     //if(l.c == 3) scal_cpu(num, 1./256, l.weights, 1);
     if (l.flipped) {
         transpose_matrix(l.weights, l.c*l.size*l.size, l.n);
